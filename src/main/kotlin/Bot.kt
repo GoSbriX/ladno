@@ -1,11 +1,9 @@
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
-import org.telegram.telegrambots.meta.TelegramBotsApi
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.InputFile
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 import java.awt.*
 import java.io.File
 import java.net.URI
@@ -120,15 +118,5 @@ class Bot : TelegramLongPollingBot() {
             e.printStackTrace()
             null
         }
-    }
-}
-
-fun main() {
-    val botsApi = TelegramBotsApi(DefaultBotSession::class.java)
-    try {
-        botsApi.registerBot(Bot())
-        println("Bot started successfully!")
-    } catch (e: TelegramApiException) {
-        e.printStackTrace()
     }
 }
