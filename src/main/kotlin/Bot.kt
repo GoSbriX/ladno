@@ -112,13 +112,3 @@ class Bot : TelegramLongPollingBot() {
         }
     }
 }
-
-fun main() {
-    val botsApi = TelegramBotsApi(DefaultBotSession::class.java)
-    try {
-        botsApi.registerBot(Bot())
-        println("Bot started successfully!")
-    } catch (e: TelegramApiException) {
-        e.printStackTrace()
-    }
-}
