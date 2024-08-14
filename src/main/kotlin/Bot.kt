@@ -1,9 +1,11 @@
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
+import org.telegram.telegrambots.meta.TelegramBotsApi
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.InputFile
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 import java.awt.*
 import java.io.File
 import java.net.URI
@@ -28,7 +30,7 @@ class Bot : TelegramLongPollingBot() {
             val chatId = update.message.chatId
 
             if (authorizedUsers[chatId] == true) {
-                handleAuthorizedCommands(chatId, messageText, update)
+                handleAuthorizedCommands(chatId, messageText)
             } else {
                 handleAuthorization(chatId, messageText)
             }
@@ -44,7 +46,7 @@ class Bot : TelegramLongPollingBot() {
         }
     }
 
-    private fun handleAuthorizedCommands(chatId: Long, messageText: String, update: Update) {
+    private fun handleAuthorizedCommands(chatId: Long, messageText: String) {
         if (messageText == "/screen") {
             val screenshotFile = takeScreenshot()
 
@@ -61,14 +63,24 @@ class Bot : TelegramLongPollingBot() {
             } else {
                 sendMessage(chatId, "Не удалось сделать скриншот.")
             }
-        } else if (messageText.startsWith("/web ")) {
-            val url = messageText.substring(5).trim()
+        }
+        val url = messageText.substring(5).trim()
+        if (messageText.startsWith("/web $url")) {
             webPage(url, chatId)
+        }
+        if (messageText == "/help"){
+            sendMessage(chatId, """
+                Bot, version 0.1
+                ________________
+                Commands:
+                    /web <url> - Открывает <url>
+                    /screen - Делает скриншот экрана
+                    /help - Выводит это меню
+            """.trimIndent())
         }
     }
 
-
-    private fun webPage(url: String, chatId: Long) {
+    private fun webPage(url: String, chatId: Long){
         try {
             if (Desktop.isDesktopSupported()) {
                 val desktop = Desktop.getDesktop()
@@ -111,3 +123,12 @@ class Bot : TelegramLongPollingBot() {
     }
 }
 
+fun main() {
+    val botsApi = TelegramBotsApi(DefaultBotSession::class.java)
+    try {
+        botsApi.registerBot(Bot())
+        println("Bot started successfully!")
+    } catch (e: TelegramApiException) {
+        e.printStackTrace()
+    }
+}
